@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../logic/product_cubit/product_cubit.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/product_card.dart';
+import '../widgets/common/error_view.dart';
 import '../widgets/category_item.dart';
 import '../../core/utils/category_utils.dart';
 import '../../core/routes/app_routes.dart';
@@ -29,19 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
           if (state is ProductLoading) {
             return const LoadingIndicator();
           } else if (state is ProductError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Error: ${state.message}'),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        context.read<ProductCubit>().fetchProducts(),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
+            return ErrorView(
+              message: "Please try again",
+              onRetry: () => context.read<ProductCubit>().fetchProducts(),
             );
           } else if (state is ProductLoaded) {
             return RefreshIndicator(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../logic/cart_cubit/cart_cubit.dart';
+import '../widgets/common/error_view.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -24,7 +25,10 @@ class CartScreen extends StatelessWidget {
           if (state is CartLoading) {
             return const Center(child: CircularProgressIndicator());
           } else if (state is CartError) {
-            return Center(child: Text('Error: ${state.message}'));
+            return ErrorView(
+              message: "Please try again",
+              onRetry: () => context.read<CartCubit>().loadCart(1),
+            );
           } else if (state is CartLoaded) {
             if (state.items.isEmpty) {
               return const Center(

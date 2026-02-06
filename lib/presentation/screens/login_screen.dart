@@ -17,36 +17,15 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
 
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeIn));
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeOut));
-
-    _fadeController.forward();
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _fadeController.dispose();
     super.dispose();
   }
 
@@ -85,160 +64,151 @@ class _LoginScreenState extends State<LoginScreen>
           return SafeArea(
             child: Center(
               child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
                 padding: const EdgeInsets.all(32.0),
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Animation or Logo placeholder
-                          Hero(
-                            tag: 'app_logo',
-                            child: Image.asset(
-                              'assets/images/logo1.png',
-                              height: 150,
-                              width: 150,
-                              errorBuilder: (ctx, err, stack) => Icon(
-                                Icons.shopping_bag_outlined,
-                                size: 80,
-                                color: colorScheme.primary,
-                              ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Animation or Logo placeholder
+                      Image.asset(
+                        'assets/images/logo1.png',
+                        height: 150,
+                        width: 150,
+                        errorBuilder: (ctx, err, stack) => Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 80,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Header Alignment
+                      Text(
+                        "Welcome Back!",
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onBackground,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Please login to continue",
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+
+                      // Username Field
+                      _buildTextField(
+                        controller: _usernameController,
+                        hint: 'Username or Email',
+                        icon: Icons.person_outline,
+                        colorScheme: colorScheme,
+                        autofillHints: const [AutofillHints.username],
+                        validator: (val) =>
+                            val == null || val.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Password Field
+                      _buildTextField(
+                        controller: _passwordController,
+                        hint: 'Password',
+                        icon: Icons.lock_outline,
+                        isPassword: true,
+                        isPasswordVisible: _isPasswordVisible,
+                        autofillHints: const [AutofillHints.password],
+                        onTogglePassword: () => setState(
+                          () => _isPasswordVisible = !_isPasswordVisible,
+                        ),
+                        colorScheme: colorScheme,
+                        validator: (val) =>
+                            val == null || val.isEmpty ? 'Required' : null,
+                      ),
+
+                      // Forgot Password
+                      const SizedBox(height: 32),
+
+                      // Login Button with Shadow
+                      Container(
+                        height: 56,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.primary.withOpacity(0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-
-                          // Header Alignment
-                          Text(
-                            "Welcome Back!",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.onBackground,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            "Please login to continue",
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.6),
-                            ),
-                          ),
-                          const SizedBox(height: 48),
-
-                          // Username Field
-                          _buildTextField(
-                            controller: _usernameController,
-                            hint: 'Username or Email',
-                            icon: Icons.person_outline,
-                            colorScheme: colorScheme,
-                            validator: (val) =>
-                                val == null || val.isEmpty ? 'Required' : null,
-                          ),
-                          const SizedBox(height: 20),
-
-                          // Password Field
-                          _buildTextField(
-                            controller: _passwordController,
-                            hint: 'Password',
-                            icon: Icons.lock_outline,
-                            isPassword: true,
-                            isPasswordVisible: _isPasswordVisible,
-                            onTogglePassword: () => setState(
-                              () => _isPasswordVisible = !_isPasswordVisible,
-                            ),
-                            colorScheme: colorScheme,
-                            validator: (val) =>
-                                val == null || val.isEmpty ? 'Required' : null,
-                          ),
-
-                          // Forgot Password
-                          const SizedBox(height: 32),
-
-                          // Login Button with Shadow
-                          Container(
-                            height: 56,
-                            decoration: BoxDecoration(
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: state is AuthLoading
+                              ? null
+                              : _onLoginPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colorScheme.primary.withOpacity(0.3),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
                             ),
-                            child: ElevatedButton(
-                              onPressed: state is AuthLoading
-                                  ? null
-                                  : _onLoginPressed,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorScheme.primary,
-                                foregroundColor: colorScheme.onPrimary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                elevation:
-                                    0, // Shadow handled by Container for better control
-                              ),
-                              child: state is AuthLoading
-                                  ? SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(
-                                        color: colorScheme.onPrimary,
-                                        strokeWidth: 2.5,
-                                      ),
-                                    )
-                                  : const Text(
-                                      "Login",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                            ),
+                            elevation:
+                                0, // Shadow handled by Container for better control
                           ),
-
-                          const SizedBox(height: 40),
-
-                          // Sign Up Footer
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Don't have an account? ",
-                                style: TextStyle(
-                                  color: colorScheme.onSurface.withOpacity(0.7),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.signup,
-                                  );
-                                },
-                                child: Text(
-                                  "Sign Up",
+                          child: state is AuthLoading
+                              ? SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    color: colorScheme.onPrimary,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  "Login",
                                   style: TextStyle(
-                                    color: colorScheme.primary,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // Sign Up Footer
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Don't have an account? ",
+                            style: TextStyle(
+                              color: colorScheme.onSurface.withOpacity(0.7),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, AppRoutes.signup);
+                            },
+                            child: Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.bold,
                               ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -258,9 +228,12 @@ class _LoginScreenState extends State<LoginScreen>
     bool isPasswordVisible = false,
     VoidCallback? onTogglePassword,
     String? Function(String?)? validator,
+    Iterable<String>? autofillHints,
   }) {
     return TextFormField(
       controller: controller,
+      autofillHints: autofillHints,
+      onTapOutside: (event) => FocusScope.of(context).unfocus(),
       obscureText: isPassword && !isPasswordVisible,
       style: TextStyle(
         fontWeight: FontWeight.w500,

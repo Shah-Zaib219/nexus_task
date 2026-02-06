@@ -4,7 +4,7 @@ import 'package:nexus_commerce/data/repositories/product_repository.dart';
 import 'package:nexus_commerce/logic/product_cubit/product_cubit.dart';
 
 // Manual Mock
-class MockProductRepository implements ProductRepository {
+class MockProductRepository extends ProductRepository {
   @override
   Future<List<ProductModel>> getAllProducts() async {
     return [
@@ -36,11 +36,8 @@ void main() {
     test(
       'emits [ProductLoading, ProductLoaded] with extracted categories when data is gotten successfully',
       () async {
-        // Act
-        final future = productCubit.fetchProducts();
-
-        // Assert
-        await expectLater(
+        // Act & Assert
+        final expectation = expectLater(
           productCubit.stream,
           emitsInOrder([
             ProductLoading(),
@@ -58,7 +55,9 @@ void main() {
                 ),
           ]),
         );
-        await future;
+
+        await productCubit.fetchProducts();
+        await expectation;
       },
     );
   });

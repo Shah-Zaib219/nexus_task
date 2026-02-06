@@ -32,7 +32,17 @@ class AuthRepository extends BaseApiService {
       if (e.response?.statusCode == 401) {
         throw Exception('Invalid username or password');
       }
-      throw Exception(e.response?.data ?? 'Network Error');
+      // Parse error message from response data if available
+      String errorMessage = 'Network Error';
+      if (e.response?.data != null) {
+        if (e.response!.data is String) {
+          errorMessage = e.response!.data;
+        } else if (e.response!.data is Map) {
+          errorMessage =
+              e.response!.data['message'] ?? e.response!.data.toString();
+        }
+      }
+      throw Exception(errorMessage);
     } catch (e) {
       rethrow;
     }
